@@ -30,7 +30,7 @@ class PengepulController extends Controller
                 $pengepul = DB::table('pengepul')->where([
                     ['id_mitra','=',session('id')],
                     ["nama_perusahaan",'LIKE','%'.request()->search.'%']
-                    ])->paginate(3);
+                    ])->paginate(20);
             }else if(session('level') == 'proyek'){
                 $pengepu = DB::table('pengepul')
                     ->select('pengepul.*','mitra.nama as nama_mitra')
@@ -50,13 +50,13 @@ class PengepulController extends Controller
                     $pengepu->add($p);
                 }
 
-                $pengepul = $this->paginate($pengepu,3,null,[
+                $pengepul = $this->paginate($pengepu,20,null,[
                     "path" => "pengepul"
                 ]);
             }
         }else{
             if(session('level') == 'mitra'){
-                $pengepul = DB::table('pengepul')->where('id_mitra',session('id'))->paginate(3);
+                $pengepul = DB::table('pengepul')->where('id_mitra',session('id'))->paginate(20);
             }else if(session('level') == 'proyek'){
                 $pengepu = DB::table('pengepul')
                     ->select('pengepul.*','mitra.nama as nama_mitra')
@@ -70,7 +70,7 @@ class PengepulController extends Controller
                     $pengepu->add($p);
                 }
 
-                $pengepul = $this->paginate($pengepu,3,null,[
+                $pengepul = $this->paginate($pengepu,20,null,[
                     "path" => "pengepul"
                 ]);
             }
@@ -83,6 +83,8 @@ class PengepulController extends Controller
     }
     public function tambah(){
         $user = DB::table(session('level'))->where('id',session('id'))->first();
+        $status = DB::table('status')->get();
+        $kategori = DB::table('kategori_p')->get();
         if(session('level') == 'proyek'){
             $mitra = DB::table('mitra')->where([
                 ['status','=','1'],
@@ -90,11 +92,15 @@ class PengepulController extends Controller
             ])->get();
             return view('pengepul/tambah',[
                 "user" => $user,
-                "mitra" => $mitra
+                "mitra" => $mitra,
+                "status" => $status,
+                "kategori" => $kategori
             ]);
         }
         return view('pengepul/tambah',[
-            "user" => $user
+            "user" => $user,
+            "status" => $status,
+            "kategori" => $kategori
         ]);
     }
     public function _tambah(){
@@ -105,31 +111,27 @@ class PengepulController extends Controller
         //     dd('ko');
         // }
         $id = IdGenerator::generate(['table' => 'pengepul','length' => 8, 'prefix' => 'P-']);
-        $validated = request()->validate([
-            "namaPetugas" => "required|unique:pengepul,nama_petugas|min:2",
-            "namaPerusahaan" => "required:min:2",
-            "no_telepon" => "required|unique:pengepul,no_hp|unique:mitra,no_hp|unique:proyek,no_hp|min:10",
-            "koordinat" => "required",
-        ]);
-        $token = Str::random(10);
-        $verifikasi = new VerifyController();
-        if(request()->verifikasi == 'sms'){
-            $sendSms = $verifikasi->sendSms($validated['no_telepon'],"localhost:8000/verifikasi/$token");
-            if($sendSms["status"] == 0){
-                return redirect()->back()->with("message",[
-                    "type" => "danger",
-                    "message" => "No tujuan tidak valid"
-                ]);
-            }
-        }else if(request()->verifikasi == "whatsapp"){
-            $sendWa = $verifikasi->sendWa($validated['no_telepon'],"localhost:8000/verifikasi/$token");
-            if($sendWa["status"] == 0){
-                return redirect()->back()->with("message",[
-                    "type" => "danger",
-                    "message" => "No tujuan tidak valid"
-                ]);
-            }
+        if(session('level') == 'mitra'){
+            $validated = request()->validate([
+                "namaPetugas" => "required|unique:pengepul,nama_petugas|min:2",
+                "namaPerusahaan" => "required:min:2",
+                "no_telepon" => "required|unique:pengepul,no_hp|unique:mitra,no_hp|unique:proyek,no_hp|min:10",
+                "koordinat" => "required",
+                "status" => "required",
+                "kategori" => "required"
+            ]);
+        }else if(session('level') == 'proyek'){
+            $validated = request()->validate([
+                "namaPetugas" => "required|unique:pengepul,nama_petugas|min:2",
+                "namaPerusahaan" => "required:min:2",
+                "no_telepon" => "required|unique:pengepul,no_hp|unique:mitra,no_hp|unique:proyek,no_hp|min:10",
+                "koordinat" => "required",
+                "status" => "required",
+                "kategori" => "required",
+                "mitra" => "required"
+            ]);
         }
+        $token = Str::random(10);
         if(session('level') == 'proyek'){
             DB::table('pengepul')->insert([
                 "id" => $id,
@@ -139,7 +141,9 @@ class PengepulController extends Controller
                 "nama_perusahaan" => $validated['namaPerusahaan'],
                 "no_hp" => $validated['no_telepon'],
                 "koordinat" => $validated['koordinat'],
-                "id_proyek" => session('id')
+                "id_mitra" => request()->mitra,
+                "id_status" => $validated['status'],
+                "id_kategori" => $validated['kategori']
             ]);
         }else if(session('level') == 'mitra'){
             DB::table('pengepul')->insert([
@@ -150,7 +154,9 @@ class PengepulController extends Controller
                 "nama_perusahaan" => $validated['namaPerusahaan'],
                 "no_hp" => $validated['no_telepon'],
                 "koordinat" => $validated['koordinat'],
-                "id_mitra" => session('id')
+                "id_status" => $validated['status'],
+                "id_mitra" => session('id'),
+                "id_kategori" => $validated['kategori']
             ]);
         }
 
@@ -171,8 +177,10 @@ class PengepulController extends Controller
         $pengepul = Pengepul::where([
             "id" => $id
         ])->firstOrFail();
+        $kategori = DB::table('kategori_p')->where('id',$pengepul->id_kategori)->first();
+        $status = DB::table('status')->where('id',$pengepul->id_status)->first();
         $user = DB::table(session('level'))->where('id',session('id'))->first();
-        return view('pengepul/profile',["pengepul" => $pengepul,"user" => $user]);
+        return view('pengepul/profile',["pengepul" => $pengepul,"user" => $user,"kategori" => $kategori,"status" => $status]);
     }
     public function edit($id){
         if(session('level') == 'mitra'){
@@ -291,5 +299,95 @@ class PengepulController extends Controller
                 "message" => "Data berhasil di ubah"
             ]);
         }
+    }
+
+    public function status(){
+        $status = DB::table('status')->get();
+        $user = DB::table(session('level'))->where('id',session('id'))->first();
+        return view('pengepul/status',["user"=> $user,"status" => $status]);
+    }
+    public function _status(){
+        $validated = request()->validate([
+            "status" => "required"
+        ]);
+        DB::table('status')->insert([
+            "nama" => $validated['status']
+        ]);
+        return redirect()->back()->with("message",[
+            "type" => "success",
+            "message" => "Status berhasil ditambahkan"
+        ]);
+    }
+    public function hapusStatus($id){
+        DB::table('status')->where('id',$id)->delete();
+        return redirect()->back()->with('message',[
+            "type" => "success",
+            "message" => "Status berhasil dihapus"
+        ]);
+    }
+    public function editStatus(){
+        $validated = request()->validate([
+            "edit_status" => "required"
+        ]);
+        DB::table('status')->where('id',request()->id)->update([
+            "nama" => $validated['edit_status']
+        ]);
+        return redirect()->back()->with('message',[
+            "type" => "success",
+            "message" => "Status berhasil di edit"
+        ]);
+    }
+
+    public function kategori(){
+        $user = DB::table(session('level'))->where('id',session('id'))->first();
+        $kategori = DB::table('kategori_p')->get();
+        return view('pengepul/kategori',["user" => $user,"kategori" => $kategori]);
+    }
+
+    public function _kategori(){
+        $validated = request()->validate([
+            "kategori" => "required"
+        ]);
+        DB::table('kategori_p')->insert([
+            "nama_kategori" => $validated['kategori']
+        ]);
+        return redirect()->back()->with("message",[
+            "type" => "success",
+            "message" => "Kategori berhasil ditambahkan"
+        ]);
+    }
+
+    public function hapusKategori($id){
+        DB::table('kategori_p')->where('id',$id)->delete();
+        return redirect()->back()->with('message',[
+            "type" => "success",
+            "message" => "Kategori berhasil dihapus"
+        ]);
+    }
+
+    public function editKategori(){
+        $validated = request()->validate([
+            "edit_kategori" => "required"
+        ]);
+        DB::table('kategori_p')->where('id',request()->id)->update([
+            "nama_kategori" => $validated['edit_kategori']
+        ]);
+        return redirect()->back()->with('message',[
+            'type' => "success",
+            "message" => "Kategori berhasil di edit"
+        ]);
+    }
+
+    public function editNoHp(){
+        $validated = request()->validate([
+            "no_hp" => "required"
+        ]);
+        DB::table('pengepul')->where('id',request()->id)->update([
+            "no_hp" => $validated['no_hp']
+        ]);
+        return redirect()->back()->with('message',[
+            'type' => 'success',
+            "message" => "No hp berhasil diubah"
+        ]);
     }
 }

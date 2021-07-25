@@ -81,11 +81,33 @@
                 @endif
                 @if (session('level') != 'admin')
                   <li class="nav-item">
-                    <a class="nav-link" href="/pengepul">
+                    <a class="nav-link " data-bs-toggle="collapse" href="#pengepul" role="button" aria-expanded="false" aria-controls="pengepul">
                       <i class="fas fa-users text-success"></i>
-                      <span class="nav-link-text">Kelola pengepul</span>
+                      <span class="nav-link-text">Pengepul</span>
+                      <i class="fas fa-caret-down text-right"></i>
                     </a>
                   </li>
+
+                  <div class="collapse" id="pengepul">
+                    <li class="nav-item ml-4">
+                      <a class="nav-link" href="/pengepul">
+                        <i class="fas fa-users text-success"></i>
+                        <span class="nav-link-text">Kelola pengepul</span>
+                      </a>
+                    </li>
+                    <li class="nav-item ml-4">
+                      <a class="nav-link" href="/pengepul/status">
+                        <i class="fas fa-user-check text-success"></i>
+                        <span class="nav-link-text">Status</span>
+                      </a>
+                    </li>
+                    <li class="nav-item ml-4">
+                      <a class="nav-link" href="/pengepul/kategori">
+                        <i class="fas fa-filter text-success"></i>
+                        <span class="nav-link-text">Kategori</span>
+                      </a>
+                    </li>
+                  </div>
                     
                 @endif
                   @if (session('level') == 'proyek')

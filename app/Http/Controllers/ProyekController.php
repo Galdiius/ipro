@@ -15,10 +15,10 @@ class ProyekController extends Controller
             $proyek = DB::table('proyek')->where([
                 ['proyek.nama','LIKE',"%".request()->search."%"]
             ])
-            ->paginate(3);
+            ->paginate(20);
             
         }else{
-            $proyek = DB::table('proyek')->paginate(3);
+            $proyek = DB::table('proyek')->paginate(20);
         }
         
         $user = DB::table(session('level'))->where('id',session('id'))->first();
@@ -62,6 +62,7 @@ class ProyekController extends Controller
             "alamat" => "required|min:4",
             "no_telepon" => "required|unique:proyek,no_hp|unique:mitra,no_hp|unique:pengepul,no_hp|min:10",
             "kategori" => "required",
+            "material" => "required",
             "koordinat" => "required",
             "password" => "required",
             "konfirmasiPassword" => "required",
@@ -107,6 +108,7 @@ class ProyekController extends Controller
                     "start" => $validate['start'],
                     "end" => $validate['end'],
                     "id_kategori" => $id,
+                    "material" => $validate['material'],
                     "password" => password_hash($validate['password'],PASSWORD_DEFAULT)
                 ]);
             });
@@ -120,7 +122,8 @@ class ProyekController extends Controller
     public function edit($id){
         $proyek = DB::table('proyek')->select('proyek.*','kategori.nama as nama_kategori')->where('proyek.id',$id)->join('kategori','proyek.id_kategori','=','kategori.id')->first();
         $user = DB::table(session('level'))->where('id',session('id'))->first();
-        return view('proyek/edit',['proyek' => $proyek,'user' => $user]);
+        $kategori = DB::table('kategori')->where('id',$proyek->id_kategori)->first();
+        return view('proyek/edit',['proyek' => $proyek,'user' => $user,"kategori"=>$kategori]);
     }
 
     public function _edit(){
@@ -148,27 +151,36 @@ class ProyekController extends Controller
                 "capex" => "required",
                 "opex" => "required" ,
                 "start" => "required",
-                "end" => "required"
-                ]);
+                "end" => "required",
+                "material" => "required",
+                "kategori" => "required"
+                ]); 
             if($validated['confirmNewPassword'] != $validated['newPassword']){
                 return redirect()->back()->with('message',[
                     "type" => "danger",
                     "message" => "Konfirmasi password tidak sesuai"
                 ]);
             }else{
-                DB::table('proyek')->where('id',request()->id)->update([
-                    "nama" => $validated["nama"],
-                    "nama_pic" => $validated['nama_pic'],
-                    "email" => $validated["email"],
-                    "alamat" => $validated["alamat"],
-                    "no_hp" => $validated["no_telepon"],
-                    "koordinat" => $validated["koordinat"],
-                    "password" => password_hash($validated["newPassword"],PASSWORD_DEFAULT),
-                    "capex" => $validated['capex'],
-                    "opex" => $validated['opex'],
-                    "start" => $validated['start'],
-                    "end" => $validated['end'],
-                ]);
+                DB::transaction(function() use($validated){
+                    DB::table('proyek')->where('id',request()->id)->update([
+                        "nama" => $validated["nama"],
+                        "nama_pic" => $validated['nama_pic'],
+                        "email" => $validated["email"],
+                        "alamat" => $validated["alamat"],
+                        "no_hp" => $validated["no_telepon"],
+                        "koordinat" => $validated["koordinat"],
+                        "password" => password_hash($validated["newPassword"],PASSWORD_DEFAULT),
+                        "capex" => $validated['capex'],
+                        "opex" => $validated['opex'],
+                        "start" => $validated['start'],
+                        "end" => $validated['end'],
+                        "material" => $validated['material']
+                    ]);
+
+                    DB::table('kategori')->where('id',request()->id_kategori)->update([
+                        "nama" => $validated['kategori']
+                    ]);
+                });
                 return redirect()->back()->with("message",[
                     "type" => "success",
                     "message" => "Data berhasil di ubah"
@@ -197,20 +209,28 @@ class ProyekController extends Controller
                 "capex" => "required",
                 "opex" => "required",
                 "start" => "required",
-                "end" => "required"
+                "end" => "required",
+                "material" => "required",
+                "kategori" => "required"
             ]);
-            DB::table('proyek')->where('id',request()->id)->update([
-                "nama" => $validated["nama"],
-                "nama_pic" => $validated['nama_pic'],
-                "email" => $validated["email"],
-                "alamat" => $validated["alamat"],
-                "no_hp" => $validated["no_telepon"],
-                "koordinat" => $validated["koordinat"],
-                "capex" => $validated['capex'],
-                "opex" => $validated['opex'],
-                "start" => $validated['start'],
-                "end" => $validated['end'],
-            ]);
+            DB::transaction(function() use($validated){
+                DB::table('proyek')->where('id',request()->id)->update([
+                    "nama" => $validated["nama"],
+                    "nama_pic" => $validated['nama_pic'],
+                    "email" => $validated["email"],
+                    "alamat" => $validated["alamat"],
+                    "no_hp" => $validated["no_telepon"],
+                    "koordinat" => $validated["koordinat"],
+                    "capex" => $validated['capex'],
+                    "opex" => $validated['opex'],
+                    "start" => $validated['start'],
+                    "end" => $validated['end'],
+                    "material" => $validated['material']
+                ]);
+                DB::table('kategori')->where('id',request()->id_kategori)->update([
+                    "nama" => $validated["kategori"]
+                ]);
+            });
             return redirect()->back()->with("message",[
                 "type" => "success",
                 "message" => "Data berhasil di ubah"

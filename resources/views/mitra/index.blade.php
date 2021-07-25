@@ -52,6 +52,37 @@
                         </td>
                         <td>
                             {{ $p->no_hp }}
+                            @if ($p->status == 0)
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#editNoHp{{ $loop->iteration }}">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <div class="modal fade" id="editNoHp{{ $loop->iteration }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Edit no telepon</h5>
+                                            <button type="button" class="btn-close btn" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <form action="/mitra/edit_no_hp" method="POST">
+                                            @csrf
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <input type="hidden" name="id" value="{{ $p->id }}">
+                                                    <label class="form-control-label">No telepon</label>
+                                                    <input type="text" name="no_hp" class="form-control" value="{{ $p->no_hp }}">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                            </div>
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </td>
                         <td>
                             {{ $p->koordinat }}

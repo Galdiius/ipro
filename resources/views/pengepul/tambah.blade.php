@@ -65,17 +65,56 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-6">
                                             <div class="form-group">
-                                                <label for="" class="form-control-label">Verifikasi lewat</label>
-                                                <select name="verifikasi" class="form-control">
-                                                    <option value="whatsapp">Whatsapp</option>
-                                                    <option value="sms">Sms</option>
+                                                <label class="form-control-label">Status</label>
+                                                <select name="status" class="form-control">
+                                                    <option disabled selected>Pilih status</option>
+                                                    @foreach ($status as $v)
+                                                        <option value="{{ $v->id }}">{{ $v->nama }}</option>
+                                                    @endforeach
                                                 </select>
+                                                @error('status')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label">Kategori</label>
+                                                <select name="kategori" class="form-control">
+                                                    <option disabled selected>Pilih kategori</option>
+                                                    @foreach ($kategori as $v)
+                                                        <option value="{{ $v->id }}">{{ $v->nama_kategori }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('kategori')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                @if (session('level') == 'proyek')
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label class="form-control-label">Mitra</label>
+                                                    <select name="mitra" class="form-control">
+                                                        <option selected disabled>Pilih mitra</option>
+                                                        @foreach ($mitra as $v)
+                                                            <option value="{{ $v->id }}">{{ $v->nama }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('mitra')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                                 
                                 <div class="col-lg-12">
                                     <div class="form-group">

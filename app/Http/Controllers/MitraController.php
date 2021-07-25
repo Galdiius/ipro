@@ -205,4 +205,17 @@ class MitraController extends Controller
             "data" => $mitra
         ]);
     }
+
+    public function editNoHp(){
+        $validated = request()->validate([
+            "no_hp" => "required"
+        ]);
+        DB::table('mitra')->where('id',request()->id)->update([
+            "no_hp" => $validated['no_hp']
+        ]);
+        return redirect()->back()->with('message',[
+            'type' => 'success',
+            "message" => "No hp berhasil diubah"
+        ]);
+    }
 }

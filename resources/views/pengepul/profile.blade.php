@@ -75,6 +75,23 @@
                     </div>
                   </div>
                 </div>
+                <h6 class="heading-small text-muted mb-4">Informasi status</h6>
+                <div class="pl-lg-4">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label">Status</label>
+                        <input type="text" class="form-control" disabled value="{{ $status == null ? 'Belum ada status' : $status->nama }}">
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label">Kategori</label>
+                        <input type="text" class="form-control" disabled value="{{ $kategori == null ? 'Belum ada kategori' : $kategori->nama_kategori }}">
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </form>
             </div>
           </div>

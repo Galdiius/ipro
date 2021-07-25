@@ -9,11 +9,11 @@
       <div class="row">
 
         <div class="col-lg-6 col-7">
-          <h6 class="h2 d-inline-block mb-0">Edit profile</h6>
+          <h6 class="h2 d-inline-block mb-0">Edit user</h6>
           <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
             <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
               <li class="breadcrumb-item"><a href="/"><i class="fas fa-home"></i></a></li>
-              <li class="breadcrumb-item"><a href="/proyek">Proyek</a></li>
+              <li class="breadcrumb-item"><a href="/proyek">User</a></li>
               <li class="breadcrumb-item"><a >Edit</a></li>
             </ol>
           </nav>
@@ -154,6 +154,30 @@
                       </div>
                   </div>
 
+                  </div>
+                </div>
+                <h6 class="heading-small text-muted mb-4">Informasi Kategori</h6>
+                <div class="pl-lg-4">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="input-group-label">Kategori</label>
+                        <input type="hidden" value="{{ $kategori->id }}" name="id_kategori">
+                        <input type="text" name="kategori" class="form-control" placeholder="Kategori..." value="{{ $kategori->nama }}">
+                        @error('kategori')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="input-group-label">Material</label>
+                        <input type="text" name="material" class="form-control" placeholder="Material..." value="{{ $proyek->material }}">
+                        @error('material')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                      </div>
+                    </div>
                   </div>
                 </div>
                 

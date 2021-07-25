@@ -63,6 +63,15 @@ Route::prefix('/pengepul')->middleware(['isLogin','mitraProyekOnly'])->group(fun
     Route::get('profile/{id}',[PengepulController::class,'profile']);
     Route::get('edit/{id}',[PengepulController::class,'edit']);
     Route::post('edit',[PengepulController::class,'_edit']);
+    Route::get('status',[PengepulController::class,'status']);
+    Route::post('status',[PengepulController::class,'_status']);
+    Route::get('status/hapus/{id}',[PengepulController::class,'hapusStatus']);
+    Route::post('status/edit',[PengepulController::class,'editStatus']);
+    Route::get('kategori',[PengepulController::class,'kategori']);
+    Route::post('kategori',[PengepulController::class,'_kategori']);
+    Route::get('kategori/hapus/{id}',[PengepulController::class,'hapusKategori']);
+    Route::post('kategori/edit',[PengepulController::class,'editKategori']);
+    Route::post('edit_no_hp',[PengepulController::class,'editNoHp']);
 });
 
 Route::prefix('kategori')->middleware(['isLogin','mitraProyekOnly'])->group(function(){
@@ -98,6 +107,7 @@ Route::prefix('/mitra')->middleware(['proyekOnly'])->group(function(){
     Route::delete('hapus',[MitraController::class,'hapus']);
     Route::get('edit/{id}',[MitraController::class,'edit']);
     Route::post('edit',[MitraController::class,'_edit']);
+    Route::post('edit_no_hp',[MitraController::class,'editNoHp']);
 });
 
 Route::get('/verifikasi/{token}',[VerifyController::class,'index']);

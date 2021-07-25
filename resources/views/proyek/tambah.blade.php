@@ -73,11 +73,20 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-lg-12">
+                                        <div class="col-lg-6">
                                             <div class="form-group">
                                                 <label class="form-control-label">Kategori</label>
                                                 <input type="text" placeholder="Masukan kategori" class="form-control" name="kategori" value="{{ old('kategori') }}">
                                                 @error('kategori')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label">Material</label>
+                                                <input type="text" placeholder="Masukan material..." class="form-control" name="material" value="{{ old('material') }}">
+                                                @error('material')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
